@@ -22,12 +22,12 @@ type S3Event struct {
         Message string `json:"scheduledBattle"`
 }
 
-func HandleRequest(ctx context.Context, name S3Event) (string, error) {
+func HandleRequest(ctx context.Context, result S3Event) (string, error) {
         sess, error := session.NewSession(&aws.Config{
 	    Region: aws.String("eu-west-1")},
 		)
 		if error != nil {
-		    exitErrorf("error when getting session: " + error.Error())
+		    exitErrorf("Error when getting session: " + error.Error())
 		}
 		
 		bucketName := "ethereal-app"
@@ -40,7 +40,7 @@ func HandleRequest(ctx context.Context, name S3Event) (string, error) {
 				Prefix: aws.String(schedulePrefix),
 				})
 		if error != nil {
-		    exitErrorf("error when listing objects: " + error.Error())
+		    exitErrorf("Error when listing objects: " + error.Error())
 		}
 		
 		for _, item := range resp.Contents {
@@ -57,7 +57,7 @@ func HandleRequest(ctx context.Context, name S3Event) (string, error) {
 			    	
 			    }
 			    if error != nil {
-				    exitErrorf("error when copying objects: " + error.Error())
+				    exitErrorf("Error when copying objects: " + error.Error())
 				}
 			    s3Svc.DeleteObject(&s3.DeleteObjectInput{
 				    Bucket: aws.String(bucketName),
@@ -67,7 +67,7 @@ func HandleRequest(ctx context.Context, name S3Event) (string, error) {
 		    
 		}
         
-        return fmt.Sprintf("Hello %s!", name.Message ), nil
+        return fmt.Sprintf("%s armies have been sent to battle!!", *item.Size-1 ), nil
 }
 
 func main() {
